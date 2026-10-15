@@ -1,0 +1,25 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__).'/app/bootstrap.php';
+if(($_SERVER['REQUEST_METHOD']??'')!=='POST')fail('POST required',405);
+verify_csrf();$a=admin(true);
+$round=current_round();
+if(!$round||$round['status']!=='draft'||(int)$round['round_number']!==1)fail('Candidate roster is frozen',409);
+$f=$_FILES['photo']??null;
+if(!$f||!is_array($f)||($f['error']??UPLOAD_ERR_NO_FILE)!==UPLOAD_ERR_OK)fail('Select a valid candidate image',422);
+if((int)($f['size']??0)>5*1024*1024||(int)($f['size']??0)<100)fail('Candidate photos must be no larger than 5 MB',422);
+if(!is_uploaded_file((string)$f['tmp_name']))fail('Invalid image upload',422);
+$mime=(new finfo(FILEINFO_MIME_TYPE))->file($f['tmp_name']);
+$types=['image/jpeg'=>'.jpg','image/png'=>'.png','image/webp'=>'.webp'];
+if(!isset($types[$mime]))fail('Only JPEG, PNG, and WebP images are allowed',422);
+$image=@getimagesize($f['tmp_name']);
+if($image===false||($image[0]??0)<1||($image[1]??0)<1||($image[0]*$image[1])>40000000)fail('The uploaded file is not a safe, readable image',422);
+$expected=[IMAGETYPE_JPEG=>'image/jpeg',IMAGETYPE_PNG=>'image/png',IMAGETYPE_WEBP=>'image/webp'];
+if(($expected[$image[2]??0]??null)!==$mime)fail('The image content does not match its file type',422);
+$filename=bin2hex(random_bytes(16)).$types[$mime];
+$directory=dirname(__DIR__).'/uploads/candidates';
+if(!is_dir($directory)&&!mkdir($directory,0755,true))fail('Candidate image storage is unavailable',500);
+$dest=$directory.'/'.$filename;
+if(!move_uploaded_file($f['tmp_name'],$dest))fail('Could not save image',500);
+chmod($dest,0644);
+audit((int)$a['id'],'candidate.photo_upload');ok(['path'=>'../uploads/candidates/'.$filename]);

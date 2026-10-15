@@ -1,0 +1,16 @@
+AMSA AIU Election 2026 — FRONTEND-ONLY PIN DEMO
+
+No PHP / MySQL / XAMPP / database
+
+Open folder with VS Code Live Server or run:
+  python -m http.server 8000
+Then visit http://localhost:8000/
+
+Admin: demo-admin
+Password: demo2026
+
+Admin > Voter Management > Create Voter to generate a six-digit demo PIN.
+Test the generated PIN at User > Voter Sign In using the same browser.
+
+ONLY A DEMO. PINs live in localStorage and cannot secure a real election.
+See README.md for complete instructions.

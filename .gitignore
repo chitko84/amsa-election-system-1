@@ -1,0 +1,33 @@
+# Local configuration and credentials
+/app/config.local.php
+.env
+.env.*
+!.env.example
+
+# Candidate uploaded photographs
+/uploads/candidates/*
+!/uploads/candidates/.htaccess
+
+# Test-generated files
+/tests/artifacts/*
+/tests/runtime/*
+
+# Database backups and exports
+/backups/
+/database/backups/
+*.sql.bak
+*.sql.gz
+*.dump
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Local dependencies
+/node_modules/
+/vendor/
+
+# Operating system files
+.DS_Store
+Thumbs.db
